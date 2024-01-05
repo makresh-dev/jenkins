@@ -10,8 +10,8 @@ pipeline {
             steps {
                 script {
                     // Use credentials for Git
-                    git credentialsId: 'ghp6j',
-                        url: 'https://github.com/makresh-dev/jenkins/django-todo-jenkin-argocd-k8s.git',
+                    git credentialsId: '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',
+                        url: 'https://github.com/makresh-dev/jenkins.git',
                         branch: 'main'
                 }
             }
