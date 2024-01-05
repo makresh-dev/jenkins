@@ -1,0 +1,3 @@
+Django==3.x.x
+gunicorn==20.x.x
+# Add other dependencies as needed
