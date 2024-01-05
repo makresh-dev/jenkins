@@ -1,66 +1,65 @@
 pipeline {
-
     agent any
 
-
-    enviroment {
+    environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
-
     stages {
-
-        stage('Checkout') {
-            steps {
-                git credentialId: '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',
-                url: 'https://github.com/makresh-dev/jenkins/django-todo-jenkin-argocd-k8s.git',
-                branch: 'main',
-            }
-        }
-
-        stage('Build Docker'){
+        stage('Checkout Source Code') {
             steps {
                 script {
-                    sh '''
-                    echo 'Build Docker Image'
-                    docker build -t mknnyk/todo:${BUILD_NUMBER} .
-                    '''
+                    // Use credentials for Git
+                    git credentialsId: 'ghp6j',
+                        url: 'https://github.com/makresh-dev/jenkins/django-todo-jenkin-argocd-k8s.git',
+                        branch: 'main'
                 }
             }
         }
 
-        stage('Push the artifacts') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh '''
-                    echo 'Push to Repo'
-                    docker push -t mknnyk/todo:${BUILD_NUMBER}
-                    '''
+                    echo 'Building Docker Image'
+                    // Correct Docker build command
+                    sh "docker build -t mknnyk/todo:${IMAGE_TAG} ."
                 }
             }
         }
 
-        stage('Checkout K8s manifest SCM') {
-            steps{
-                git credentialId: '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',
-                url: 'https://github.com/makresh-dev/cicd-demo-manifests-repo.git',
-                brnach: 'main'
+        stage('Push Docker Image to Repository') {
+            steps {
+                script {
+                    echo 'Pushing Docker Image to Repository'
+                    // Correct Docker push command
+                    sh "docker push mknnyk/todo:${IMAGE_TAG}"
+                }
             }
         }
 
-        stage ('Update K8s manifest & push to repository') {
+        stage('Checkout K8s Manifest SCM') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialId: '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', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh '''
-                        cat deploy.yaml
-                        sed -i '' "s/32/${BUILD_NUMBER}/g" deploy.yaml
-                        cat deploy.yaml
-                        git add deploy.yaml
-                        git commit -m 'Updated the deploy yaml | Jenkins Pipeline'
-                        git remote -v
-                        git push https://github.com/makresh-dev/cicd-demo-manifests-repo.git HEAD:main
-                        '''
+                    // Correct the typo in 'branch'
+                    git credentialsId: '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',
+                        url: 'https://github.com/makresh-dev/cicd-demo-manifests-repo.git',
+                        branch: 'main'
+                }
+            }
+        }
+
+        stage('Update K8s Manifest & Push to Repository') {
+            steps {
+                script {
+                    // Use withCredentials block properly
+                    withCredentials([usernamePassword(credentialsId: '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', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        echo 'Updating K8s Manifest & Pushing to Repository'
+                        // Correct sed command
+                        sh 'sed -i "s/32/${IMAGE_TAG}/g" deploy.yaml'
+                        sh 'cat deploy.yaml'
+                        sh 'git add deploy.yaml'
+                        sh 'git commit -m "Updated the deploy yaml | Jenkins Pipeline"'
+                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/makresh-dev/cicd-demo-manifests-repo.git HEAD:main'
                     }
                 }
             }
