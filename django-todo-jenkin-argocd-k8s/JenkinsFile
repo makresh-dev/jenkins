@@ -1,5 +1,5 @@
 pipeline {
-    
+
     agent any
 
 
@@ -23,7 +23,7 @@ pipeline {
                 script {
                     sh '''
                     echo 'Build Docker Image'
-                    docker build -t mknnyk/:${BUILD_NUMBER} .
+                    docker build -t mknnyk/todo:${BUILD_NUMBER} .
                     '''
                 }
             }
@@ -34,7 +34,7 @@ pipeline {
                 script {
                     sh '''
                     echo 'Push to Repo'
-                    docker push -t mknnyk/:${BUILD_NUMBER}
+                    docker push -t mknnyk/todo:${BUILD_NUMBER}
                     '''
                 }
             }
